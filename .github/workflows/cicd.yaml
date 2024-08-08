@@ -39,5 +39,5 @@ jobs:
         
         - name: Build and push
           run: | 
-            docker build -t ${{secrets.DOCKER_USER_NAME}}/next-cicd
+            docker build -t ${{secrets.DOCKER_USER_NAME}}/next-cicd .
             docker push ${{secrets.DOCKER_USER_NAME}}/next-cicd
