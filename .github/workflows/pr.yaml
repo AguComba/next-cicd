@@ -14,6 +14,7 @@ jobs:
         - name: install dependencies
           run: |
             npm install
+            exit 1
           working-directory: ./
 
         - name: Run tests
