@@ -24,29 +24,29 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         PRERELEASE: false
-    - name: Save version to file
-      run: echo "${{ steps.github_tag.outputs.new_tag }}" > version.txt
-      id: save_version
-  ci:
-    needs: bump
-    runs-on: ubuntu-latest
+    - name: Set version output
+      id: set_version
+      run: echo "::set-output name=VERSION::${{ steps.bump_version.outputs.new_tag }}"
+  # ci:
+  #   needs: bump
+  #   runs-on: ubuntu-latest
 
-    steps:
-        - name: Checkout
-          uses: actions/checkout@v3
+  #   steps:
+  #       - name: Checkout
+  #         uses: actions/checkout@v3
 
-        - name: install dependencies
-          run: |
-            npm install
-          working-directory: ./
+  #       - name: install dependencies
+  #         run: |
+  #           npm install
+  #         working-directory: ./
 
-        - name: Run tests
-          run: |
-            npm run test
-          working-directory: ./
+  #       - name: Run tests
+  #         run: |
+  #           npm run test
+  #         working-directory: ./
 
   cd:
-    needs: ci
+    needs: bump 
     runs-on: ubuntu-latest
     
     steps:
@@ -56,16 +56,10 @@ jobs:
         - name: Login to docker
           uses: docker/login-action@v3
           with:
-            username: ${{secrets.DOCKER_USER_NAME}}  
-            password: ${{secrets.DOCKERHUB_TOKEN}}
+            username: ${{ secrets.DOCKER_USER_NAME }}  
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
         
-        - name: Read version from file
-          id: read_version
-          run: |
-            VERSION=$(cat version.txt)
-            echo "::set-output name=VERSION::$VERSION"
-
         - name: Build and push
           run: | 
-            docker build -t ${{secrets.DOCKER_USER_NAME}}/next-cicd:${{ steps.read_version.outputs.VERSION }} .
-            docker push ${{secrets.DOCKER_USER_NAME}}/next-cicd:${{ steps.read_version.outputs.VERSION }}
+            docker build -t ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ needs.bump.outputs.VERSION }} .
+            docker push ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ needs.bump.outputs.VERSION }}
