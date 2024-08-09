@@ -37,7 +37,13 @@ jobs:
             username: ${{secrets.DOCKER_USER_NAME}}  
             password: ${{secrets.DOCKERHUB_TOKEN}}
         
+        - name: Read version from file
+          id: read_version
+          run: |
+            VERSION=$(cat version.txt)
+            echo "::set-output name=VERSION::$VERSION"
+
         - name: Build and push
           run: | 
-            docker build -t ${{secrets.DOCKER_USER_NAME}}/next-cicd .
-            docker push ${{secrets.DOCKER_USER_NAME}}/next-cicd
+            docker build -t ${{secrets.DOCKER_USER_NAME}}/next-cicd:${{ steps.read_version.outputs.VERSION }} .
+            docker push ${{secrets.DOCKER_USER_NAME}}/next-cicd:${{ steps.read_version.outputs.VERSION }}
