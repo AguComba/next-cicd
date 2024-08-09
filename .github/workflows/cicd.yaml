@@ -19,6 +19,7 @@ jobs:
         ref: ${{ github.event.pull_request.merge_commit_sha }}
         fetch-depth: '0'
     - name: Bump version and push tag
+      id: bump_version
       uses: anothrNick/github-tag-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +27,9 @@ jobs:
         PRERELEASE: false
     - name: Set version output
       id: set_version
-      run: echo "::set-output name=VERSION::${{ steps.bump_version.outputs.new_tag }}"
+      run: echo "VERSION=${{ steps.bump_version.outputs.new_tag }}" >> $GITHUB_ENV
+
+
   # ci:
   #   needs: bump
   #   runs-on: ubuntu-latest
@@ -61,5 +64,5 @@ jobs:
         
         - name: Build and push
           run: | 
-            docker build -t ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ needs.bump.outputs.VERSION }} .
-            docker push ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ needs.bump.outputs.VERSION }}
+            docker build -t ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ env.VERSION }} .
+            docker push ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ env.VERSION }}
