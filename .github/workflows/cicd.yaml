@@ -25,9 +25,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         PRERELEASE: false
-    - name: Set version output
-      id: set_version
-      run: echo "VERSION=${{ steps.bump_version.outputs.new_tag }}" >> $GITHUB_ENV
 
 
   # ci:
@@ -64,5 +61,5 @@ jobs:
         
         - name: Build and push
           run: | 
-            docker build -t ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ env.VERSION }} .
-            docker push ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ env.VERSION }}
+            docker build -t ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ needs.bump.outputs.new_tag }} .
+            docker push ${{ secrets.DOCKER_USER_NAME }}/next-cicd:${{ needs.bump.outputs.new_tag }}
